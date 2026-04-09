@@ -1,0 +1,192 @@
+:root {
+  --wtk-font: "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+  --wtk-green: #7cfc98;
+  --wtk-amber: #f4c76a;
+  --wtk-red: #ff7b72;
+  --wtk-panel: #0d1117;
+  --wtk-panel-soft: #161b22;
+  --wtk-border: #30363d;
+  --wtk-text: #e6edf3;
+  --wtk-muted: #8b949e;
+}
+
+.wtk-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  border: 1px solid var(--wtk-border);
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(124, 252, 152, 0.08), transparent 30%),
+    linear-gradient(180deg, #151b23 0%, #0a0e13 100%);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  color: var(--wtk-text);
+  font-family: var(--wtk-font);
+}
+
+.wtk-window--windows {
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(49, 67, 85, 0.95) 0%, rgba(10, 14, 19, 1) 14%),
+    #0a0e13;
+}
+
+.wtk-window--linux {
+  background:
+    radial-gradient(circle at top left, rgba(244, 199, 106, 0.08), transparent 24%),
+    linear-gradient(180deg, #171717 0%, #0f1115 100%);
+}
+
+.wtk-titlebar {
+  display: grid;
+  grid-template-columns: 92px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wtk-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.wtk-controls span {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--wtk-muted);
+}
+
+.wtk-window--linux .wtk-controls span:nth-child(1) {
+  background: #ff5f57;
+}
+
+.wtk-window--linux .wtk-controls span:nth-child(2) {
+  background: #febc2e;
+}
+
+.wtk-window--linux .wtk-controls span:nth-child(3) {
+  background: #28c840;
+}
+
+.wtk-window--windows .wtk-controls span {
+  width: 14px;
+  height: 2px;
+  border-radius: 0;
+  background: #9fb3c8;
+  align-self: center;
+}
+
+.wtk-title {
+  text-align: center;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  color: #f5f7fa;
+}
+
+.wtk-status {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wtk-status--connected {
+  color: var(--wtk-green);
+}
+
+.wtk-status--connecting {
+  color: var(--wtk-amber);
+}
+
+.wtk-status--error,
+.wtk-status--disconnected {
+  color: var(--wtk-red);
+}
+
+.wtk-body,
+.wtk-terminal {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.wtk-terminal {
+  position: relative;
+  padding: 16px;
+  outline: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    var(--wtk-panel);
+}
+
+.wtk-terminal:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(124, 252, 152, 0.5);
+}
+
+.wtk-viewport {
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.97rem;
+  line-height: 1.45;
+  scrollbar-color: #46515e transparent;
+}
+
+.wtk-line {
+  min-height: 1.45em;
+}
+
+.wtk-line--system {
+  color: #8ad0ff;
+}
+
+.wtk-line--input {
+  color: #d2f4d8;
+}
+
+.wtk-line--active {
+  display: flex;
+  align-items: center;
+}
+
+.wtk-prompt {
+  color: var(--wtk-green);
+  margin-right: 0.5ch;
+  user-select: none;
+}
+
+.wtk-input {
+  min-width: 1ch;
+}
+
+.wtk-cursor {
+  display: inline-block;
+  width: 0.66ch;
+  height: 1.1em;
+  margin-left: 1px;
+  background: var(--wtk-text);
+  animation: wtk-blink 1.05s steps(1) infinite;
+}
+
+.wtk-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: pre;
+}
+
+@keyframes wtk-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
