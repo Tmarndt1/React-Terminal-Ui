@@ -2,6 +2,8 @@
 
 React Terminal UI is a lightweight component library for building browser-based terminal experiences with a polished shell window, transcript rendering, local command capture, and transport-driven remote sessions.
 
+![React Terminal UI demo](./demo-preview.png)
+
 ## Highlights
 
 - Typed React components and hooks for local or remote terminal flows
