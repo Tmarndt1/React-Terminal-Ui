@@ -1,6 +1,7 @@
 import { TerminalLine } from "../types";
 
 const ANSI_PATTERN = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
+let terminalLineId = 0;
 
 export function stripAnsi(input: string): string {
   return input.replace(ANSI_PATTERN, "");
@@ -8,7 +9,7 @@ export function stripAnsi(input: string): string {
 
 export function createLine(text = "", kind: TerminalLine["kind"] = "output"): TerminalLine {
   return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    id: `wtk-line-${terminalLineId++}`,
     text,
     kind
   };
@@ -16,7 +17,7 @@ export function createLine(text = "", kind: TerminalLine["kind"] = "output"): Te
 
 export function appendChunk(lines: TerminalLine[], chunk: string): TerminalLine[] {
   const sanitized = stripAnsi(chunk).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  const next = [...lines];
+  const next = lines.map((line) => ({ ...line }));
   const parts = sanitized.split("\n");
 
   if (next.length === 0) {

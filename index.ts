@@ -7,6 +7,7 @@ export type {
   TerminalConnectionStatus,
   TerminalLine,
   TerminalResize,
+  TerminalSubmitEvent,
   TerminalTheme,
   TerminalTranscript,
   TerminalTransport,

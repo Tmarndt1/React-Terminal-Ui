@@ -22,7 +22,9 @@ export function TerminalWindow({
           <span />
         </div>
         <div className="wtk-title">{title}</div>
-        <div className={`wtk-status wtk-status--${status}`}>{status}</div>
+        <div className={`wtk-status wtk-status--${status}`} aria-live="polite">
+          {status}
+        </div>
       </header>
       <div className="wtk-body">{children}</div>
     </section>

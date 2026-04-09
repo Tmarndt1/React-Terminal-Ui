@@ -1,0 +1,72 @@
+{
+  "name": "react-terminal-ui",
+  "version": "0.1.0",
+  "description": "A flexible and extensible React terminal component for interactive command-driven user interfaces.",
+  "keywords": [
+    "react",
+    "terminal",
+    "ui",
+    "component-library",
+    "websocket"
+  ],
+  "homepage": "https://github.com/tmarn/React-Terminal-Ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmarn/React-Terminal-Ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tmarn/React-Terminal-Ui/issues"
+  },
+  "license": "MIT",
+  "author": "tmarn",
+  "type": "module",
+  "sideEffects": [
+    "./dist/styles.css",
+    "./styles.css"
+  ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^14.2.2",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "~4.2.1",
+    "jsdom": "^22.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsup": "~6.7.0",
+    "typescript": "^5.4.5",
+    "vite": "~4.5.3",
+    "vitest": "^0.34.6"
+  },
+  "scripts": {
+    "build": "tsup && node ./scripts/copy-styles.mjs",
+    "check": "tsc --noEmit",
+    "dev": "vite",
+    "preview": "vite build && vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run check && npm run test && npm run build"
+  },
+  "engines": {
+    "node": ">=16.14"
+  }
+}

@@ -60,9 +60,12 @@ export function useTerminalSession({
       return;
     }
 
-    void connectTransport(transport, setLines, setStatus, setTitle, maxLines);
+    let isMounted = true;
+
+    void connectTransport(transport, setLines, setStatus, setTitle, maxLines, () => isMounted);
 
     return () => {
+      isMounted = false;
       void transport.disconnect?.();
     };
   }, [autoConnect, maxLines, transport]);
@@ -76,13 +79,19 @@ export function useTerminalSession({
       return;
     }
 
-    const command = `${prompt} ${submitted}`.trim();
-    setLines((current) => trimLines([...current, createLine(command, "input")], maxLines));
+    onSubmit?.({
+      input: submitted,
+      prompt
+    });
 
     if (transport) {
-      void transport.send(`${submitted}\r`);
+      void transport.send("\r");
+      setInput("");
+      return;
     }
 
+    const command = `${prompt} ${submitted}`.trim();
+    setLines((current) => trimLines([...current, createLine(command, "input")], maxLines));
     setInput("");
   };
 
@@ -152,25 +161,58 @@ async function connectTransport(
   setLines: Dispatch<SetStateAction<TerminalLine[]>>,
   setStatus: Dispatch<SetStateAction<TerminalConnectionStatus>>,
   setTitle: Dispatch<SetStateAction<string>>,
-  maxLines: number
+  maxLines: number,
+  isMounted: () => boolean = () => true
 ) {
-  await transport.connect({
-    onData: (chunk) => {
-      setLines((current) => trimLines(appendChunk(current, chunk), maxLines));
-    },
-    onStatus: (nextStatus) => {
-      setStatus(nextStatus);
-    },
-    onTitle: (nextTitle) => {
-      setTitle(nextTitle);
-    },
-    onError: (error) => {
-      setStatus("error");
-      setLines((current) =>
-        trimLines([...current, createLine(`[transport error] ${error.message}`, "system")], maxLines)
-      );
+  setStatus("connecting");
+
+  try {
+    await transport.connect({
+      onData: (chunk) => {
+        if (!isMounted()) {
+          return;
+        }
+
+        setLines((current) => trimLines(appendChunk(current, chunk), maxLines));
+      },
+      onStatus: (nextStatus) => {
+        if (!isMounted()) {
+          return;
+        }
+
+        setStatus(nextStatus);
+      },
+      onTitle: (nextTitle) => {
+        if (!isMounted()) {
+          return;
+        }
+
+        setTitle(nextTitle);
+      },
+      onError: (error) => {
+        if (!isMounted()) {
+          return;
+        }
+
+        setStatus("error");
+        setLines((current) =>
+          trimLines([...current, createLine(`[transport error] ${error.message}`, "system")], maxLines)
+        );
+      }
+    });
+  } catch (error) {
+    if (!isMounted()) {
+      return;
     }
-  });
+
+    const message =
+      error instanceof Error ? error.message : "The terminal transport failed to connect.";
+
+    setStatus("error");
+    setLines((current) =>
+      trimLines([...current, createLine(`[transport error] ${message}`, "system")], maxLines)
+    );
+  }
 }
 
 function trimLines(lines: TerminalLine[], maxLines: number): TerminalLine[] {

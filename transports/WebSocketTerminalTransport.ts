@@ -18,20 +18,23 @@ interface WebSocketTransportOptions {
 export class WebSocketTerminalTransport implements TerminalTransport {
   private readonly options: WebSocketTransportOptions;
   private socket: WebSocket | null = null;
+  private cleanup: Array<() => void> = [];
 
   constructor(options: WebSocketTransportOptions) {
     this.options = options;
   }
 
   connect(events: TerminalTransportEvents): void {
+    this.disconnect();
     events.onStatus?.("connecting");
-    this.socket = new WebSocket(this.options.url, this.options.protocols);
+    const socket = new WebSocket(this.options.url, this.options.protocols);
+    this.socket = socket;
 
-    this.socket.addEventListener("open", () => {
+    const handleOpen = () => {
       events.onStatus?.("connected");
-    });
+    };
 
-    this.socket.addEventListener("message", (event) => {
+    const handleMessage = (event: MessageEvent) => {
       try {
         const message = JSON.parse(String(event.data)) as IncomingMessage;
 
@@ -51,28 +54,50 @@ export class WebSocketTerminalTransport implements TerminalTransport {
           error instanceof Error ? error : new Error("Unable to parse terminal message.")
         );
       }
-    });
+    };
 
-    this.socket.addEventListener("error", () => {
+    const handleError = () => {
       events.onStatus?.("error");
       events.onError?.(new Error("WebSocket terminal transport failed."));
-    });
+    };
 
-    this.socket.addEventListener("close", () => {
+    const handleClose = () => {
       events.onStatus?.("disconnected");
-    });
+    };
+
+    socket.addEventListener("open", handleOpen);
+    socket.addEventListener("message", handleMessage);
+    socket.addEventListener("error", handleError);
+    socket.addEventListener("close", handleClose);
+
+    this.cleanup = [
+      () => socket.removeEventListener("open", handleOpen),
+      () => socket.removeEventListener("message", handleMessage),
+      () => socket.removeEventListener("error", handleError),
+      () => socket.removeEventListener("close", handleClose)
+    ];
   }
 
   disconnect(): void {
+    this.cleanup.forEach((cleanup) => cleanup());
+    this.cleanup = [];
     this.socket?.close();
     this.socket = null;
   }
 
   send(input: string): void {
-    this.socket?.send(JSON.stringify({ type: "input", payload: input }));
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    this.socket.send(JSON.stringify({ type: "input", payload: input }));
   }
 
   resize(size: TerminalResize): void {
-    this.socket?.send(JSON.stringify({ type: "resize", payload: size }));
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    this.socket.send(JSON.stringify({ type: "resize", payload: size }));
   }
 }
